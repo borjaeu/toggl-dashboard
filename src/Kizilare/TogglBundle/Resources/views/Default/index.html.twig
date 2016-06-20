@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Togglr Entries</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <style>
+        * { font-family:courier,monospace; font-size:11px; }
+        div.slots div { height:60px; font-size: 16px; }
+        div.slots div.odd { background-color: white; }
+        div.slots div.even { background-color: rgb(215, 215, 212); }
+        div.habits div { position: absolute; left:0px; height: 12px; width: 100%; border-top: 2px solid red; text-align: right; }
+        div.entries { background-color: red; }
+        div.entries div { position: absolute; overflow: hidden; width: 200px; border: none; cursor: pointer; border-top: 1px solid black; font-weight: bold; }
+        div.entries div:hover { background-color: green !important; }
+
+{%  for project, color in projects %}
+        div.entries div.project_{{ project | replace({' ': '_'}) | lower }} { background-color: #{{ color }} }
+{%  endfor %}
+
+        div.estimation {
+            position: absolute;
+            height: 4px;
+            width: 200px;
+            border: 1px solid gray;
+            cursor: pointer;
+        }
+        div.estimation.sooner { background-color: darkorange; }
+        div.estimation.expected { background-color: red; }
+        ul#projects { list-style: none; padding: 0; }
+        ul#projects li { float: left; padding: 3px; }
+
+    </style>
+</head>
+
+<body>
+<div class="column slots">
+    {% for slot in slots %}
+        <div class="{{ cycle(['odd', 'even'], loop.index0) }}">{{ slot.time }}</div>
+    {% endfor %}
+</div>
+
+<div class="habits">
+    {% for offset, habit in habits %}
+        <div style="top:{{ offset }}px;" title="{{ habit }}">
+            {{ habit }}
+        </div>
+    {% endfor %}
+</div>
+
+<div class="entries">
+    {% for day, entries in schedule %}
+        {% for entry_id, entry in entries %}
+            <div class="{{ cycle(['odd', 'even'], loop.index0) }} project_{{ entry.project_label }}" style="top:{{ entry.offset }}px; left:{{ entry.day * 210 }}px; height:{{ entry.length }}px;" title="[{{ entry.project }}] {{ entry.start_time }} - {{ entry.stop_time }} {{ entry.description }}">
+                {{ entry.description }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% if estimation %}
+    <div class="estimation expected" style="top:{{ estimation.expected_out }}px; left:{{ estimation.day * 210 }}px;" title="{{ estimation.expected_out_label }}"></div>
+    <div class="estimation sooner" style="top:{{ estimation.sooner_out }}px; left:{{ estimation.day * 210 }}px;" title="{{ estimation.sooner_out_label }}"></div>
+{% endif %}
+<div class="progress">
+    {% for day, total in daily_total %}
+        <div class="progress-bar {{ cycle(['progress-bar-success', 'progress-bar-warning'], loop.index0) }}" style="width: {{ total.weekly|round(0, 'floor') }}%" title="Time {{ total.label }}, {{ total.weekly }}% weekly">
+            {{ total.daily }}%
+        </div>
+    {% endfor %}
+</div>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="{{ total.weekly }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ total.weekly }}%;">
+        {{ total.weekly }}% / {{ total.label }} ({{ total.extra }})
+    </div>
+</div>
+<ul id="projects">
+    {% for name, project in projects %}
+    <li id="project_{{ name | replace({' ': '_'}) | lower }}">
+        {% if project.id is defined %}
+        <a href="{{ url('toggl_project', {'newProject': project.id}) }}">{{ name }}</a>
+        {% else %}
+            {{ name }}
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

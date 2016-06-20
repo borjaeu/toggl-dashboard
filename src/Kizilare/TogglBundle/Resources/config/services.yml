@@ -1,0 +1,12 @@
+services:
+    kizilare.toggl.api:
+        class: Kizilare\TogglBundle\Helper\Api
+        arguments:
+          - 'api_key'
+          - 'api_url'
+          - 'workspace_id'
+
+    kizilare.toggl.schedule_loader:
+        class: Kizilare\TogglBundle\Services\ScheduleLoader
+        arguments:
+          - '@kizilare.toggl.api'

@@ -1,0 +1,3 @@
+kizilare_toggl:
+    resource: "@KizilareTogglBundle/Resources/config/routing.yml"
+    prefix:   /

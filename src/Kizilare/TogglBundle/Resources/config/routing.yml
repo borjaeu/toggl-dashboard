@@ -1,0 +1,12 @@
+toggl_homepage:
+    path:     /{offset}
+    defaults: { _controller: KizilareTogglBundle:Default:index, offset: 0 }
+    requirements:
+        page:  \d+
+toggl_switch:
+    path:     /switch/{newContext}
+    defaults: { _controller: KizilareTogglBundle:Switch:index }
+
+toggl_project:
+    path:     /project/{newProject}
+    defaults: { _controller: KizilareTogglBundle:Switch:project }
